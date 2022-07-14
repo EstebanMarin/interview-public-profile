@@ -53,7 +53,7 @@ case class ShortestPath()
 object ShortestPath:
   def live = ZLayer.succeed(ShortestPath())
 
-  /** Function tries to find a shortest path from source vertex to all other vertices in the graph
+  /** Effect tries to find a shortest path from source vertex to all other vertices in the graph
     *
     * @param g       EdgeWeightedDigraph to find a shortest path
     * @param sourceV source vertex to find a shortest path from
@@ -61,7 +61,7 @@ object ShortestPath:
     */
 
   def dijkstraPathAndTime(source: Int, to: Int): IO[Throwable, Unit] =
-    val sp: Either[String, ShortestPathCalc] = ShortestPath.run2(g, source)
+    val sp: Either[String, ShortestPathCalc] = ShortestPath.runAlgorithm(g, source)
     val either: Either[Throwable, ShortestPathCalc] = sp match
       case Right(value) => Right(value)
       case Left(value) => Left(new RuntimeException(s"${value}"))
@@ -71,16 +71,11 @@ object ShortestPath:
       actualPath = sp.pathTo(to).toString
       timeToGet = sp.distToV(to)
       _ <- Console.printLine(
-        s"[Path] ${actualPath.toString} \n Time ===> ${timeToGet.getOrElse("Nothing")}"
+        s"[Path] ${actualPath.toString} \n Time ===> ${timeToGet.getOrElse("There is not path between the nodes")}"
       )
     yield ()
 
-  def pathAndTime2(source: Int, to: Int): IO[String, ShortestPathCalc] =
-    val sp: Either[String, ShortestPathCalc] = ShortestPath.run2(g, source)
-    val composableEffect: IO[String, ShortestPathCalc] = ZIO.fromEither(sp)
-    composableEffect
-
-  def run2(g: EdgeWeightedDigraph, sourceV: Int): Either[String, ShortestPathCalc] =
+  def runAlgorithm(g: EdgeWeightedDigraph, sourceV: Int): Either[String, ShortestPathCalc] =
     val size = g.adj.size
 
     if (sourceV >= size) Left(s"Source vertex must in range [0, $size)")
