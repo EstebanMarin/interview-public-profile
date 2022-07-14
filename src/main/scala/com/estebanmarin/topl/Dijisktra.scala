@@ -7,7 +7,13 @@ import scala.collection.mutable
  * Algorithm is based on Java version implemented by Princeton University https://algs4.cs.princeton.edu/44sp/
  */
 
+type Avenue = String
+type Street = Int
+
+final case class Intersection(avenue: Avenue, street: Street)
+
 final case class DirectedEdge(from: Int, to: Int, weight: Double)
+final case class DirectedEdgeRefactor(from: Intersection, to: Intersection, weight: Double)
 
 final case class EdgeWeightedDigraph(adj: Map[Int, List[DirectedEdge]] = Map.empty)
 

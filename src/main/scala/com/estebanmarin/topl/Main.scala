@@ -23,6 +23,12 @@ val g = EdgeWeightedDigraph()
 @main def Main(args: String*): Unit =
   println("─" * 100)
 
-  println("hello world")
+  val sp: Either[String, ShortestPathCalc] = ShortestPath.run(g, 0)
+
+  val actualPath = sp match
+    case Right(value) => value.pathTo(6).toString
+    case Left(value)  => "no path"
+
+  println(s"This is the shortest path: ${actualPath}")
 
   println("─" * 100)
