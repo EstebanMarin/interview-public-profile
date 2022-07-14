@@ -25,13 +25,13 @@ val g = EdgeWeightedDigraph()
 
 object ZIOApp extends ZIOAppDefault:
 
-  def getPathAndTime(source: Int, to: Int) =
-    for
-      sp: ShortestPathCalc <- ShortestPath.run(g, source)
-      actualPath = sp.pathTo(to).toString
-      timeToGet = sp.distToV(to)
-      _ <- Console.printLine(s"THIS IS THE PATH ${actualPath.toString} with ===> ${timeToGet}")
-    yield ()
+//  def getPathAndTime(source: Int, to: Int) =
+//    for
+//      sp: ShortestPathCalc <- ShortestPath.run(g, source)
+//      actualPath = sp.pathTo(to).toString
+//      timeToGet = sp.distToV(to)
+//      _ <- Console.printLine(s"THIS IS THE PATH ${actualPath.toString} with ===> ${timeToGet}")
+//    yield ()
   // don't Delete
 //  val getInputFromUser: IO[Throwable, (String, String, String)] =
 //    for
@@ -44,7 +44,7 @@ object ZIOApp extends ZIOAppDefault:
   val interview  =
     for
       (from, to, path) <- UserInput.getInputFromUser
-      _ <- getPathAndTime(from.toInt, to.toInt)
+      _ <- ShortestPath.getPathAndTime(from.toInt, to.toInt)
 //      _ <- ShortestPath.getPathAndTime(0, 6)
 //      _ <- getPathAndTime(from.toInt, to.toInt)
     yield ()
