@@ -1,7 +1,9 @@
-package com.estebanmarin.topl
+package com.estebanmarin.topl.algService
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import zio.*
+
 
 /**
  * Algorithm is based on Java version implemented by Princeton University https://algs4.cs.princeton.edu/44sp/
@@ -10,10 +12,7 @@ import scala.collection.mutable
 type Avenue = String
 type Street = Int
 
-final case class Intersection(avenue: Avenue, street: Street)
-
 final case class DirectedEdge(from: Int, to: Int, weight: Double)
-final case class DirectedEdgeRefactor(from: Intersection, to: Intersection, weight: Double)
 
 final case class EdgeWeightedDigraph(adj: Map[Int, List[DirectedEdge]] = Map.empty)
 
@@ -32,8 +31,10 @@ object EdgeWeightedDigraphOps:
       val adj = g.adj + (e.from -> (list :+ e))
       EdgeWeightedDigraph(adj)
 
+case class ShortestPath()
 
 object ShortestPath:
+  def live = ZLayer.succeed(ShortestPath)
   /**
    * Function tries to find a shortest path from source vertex to all other vertices in the graph
    *
@@ -41,10 +42,11 @@ object ShortestPath:
    * @param sourceV source vertex to find a shortest path from
    * @return return either error as string when input parameters are invalid or return shortest path result
    */
-  def run(g: EdgeWeightedDigraph, sourceV: Int): Either[String, ShortestPathCalc] =
+
+  def run2(g: EdgeWeightedDigraph, sourceV: Int): IO[String, ShortestPathCalc] =
     val size = g.adj.size
 
-    if (sourceV >= size) Left(s"Source vertex must in range [0, $size)")
+    if (sourceV >= size) ZIO.fromEither(Left(s"Source vertex must in range [0, $size)"))
     else
       val edgeTo = mutable.ArrayBuffer.fill[Option[DirectedEdge]](size)(None)
       val distTo = mutable.ArrayBuffer.fill(size)(Double.PositiveInfinity)
@@ -66,7 +68,34 @@ object ShortestPath:
             if (!queue.exists(_._1 == e.to)) queue.enqueue((e.to, distTo(e.to)))
         }
 
-      Right(ShortestPathCalc(edgeTo.toSeq, distTo.toSeq))
+      ZIO.fromEither(Right(ShortestPathCalc(edgeTo.toSeq, distTo.toSeq)))
+
+//  def run(g: EdgeWeightedDigraph, sourceV: Int): Either[String, ShortestPathCalc] =
+//    val size = g.adj.size
+//
+//    if (sourceV >= size) Left(s"Source vertex must in range [0, $size)")
+//    else
+//      val edgeTo = mutable.ArrayBuffer.fill[Option[DirectedEdge]](size)(None)
+//      val distTo = mutable.ArrayBuffer.fill(size)(Double.PositiveInfinity)
+//
+//      //init source distance and add to the queue
+//      distTo(sourceV) = 0.0
+//      val sourceDist = (sourceV, distTo(sourceV))
+//      val sortByWeight: Ordering[(Int, Double)] = (a, b) => a._2.compareTo(b._2)
+//      val queue = mutable.PriorityQueue[(Int, Double)](sourceDist)(sortByWeight)
+//
+//      while (queue.nonEmpty)
+//        val (minDestV, _) = queue.dequeue()
+//        val edges = g.adj.getOrElse(minDestV, List.empty)
+//
+//        edges.foreach { e =>
+//          if (distTo(e.to) > distTo(e.from) + e.weight)
+//            distTo(e.to) = distTo(e.from) + e.weight
+//            edgeTo(e.to) = Some(e)
+//            if (!queue.exists(_._1 == e.to)) queue.enqueue((e.to, distTo(e.to)))
+//        }
+//
+//      Right(ShortestPathCalc(edgeTo.toSeq, distTo.toSeq))
 
 /**
  *

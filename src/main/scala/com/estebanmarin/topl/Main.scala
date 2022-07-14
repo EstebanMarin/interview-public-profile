@@ -1,7 +1,11 @@
 package com.estebanmarin
 package topl
 
-import EdgeWeightedDigraphOps.*
+import com.estebanmarin.topl.algService.*
+import com.estebanmarin.topl.algService.EdgeWeightedDigraphOps.*
+import zio.*
+
+import java.io.IOException
 
 val g = EdgeWeightedDigraph()
   .addEdge(DirectedEdge(4, 5, 0.35))
@@ -20,15 +24,16 @@ val g = EdgeWeightedDigraph()
   .addEdge(DirectedEdge(6, 0, 0.58))
   .addEdge(DirectedEdge(6, 4, 0.93))
 
-@main def Main(args: String*): Unit =
-  println("─" * 100)
+object ZIOApp extends ZIOAppDefault:
+//  val program: IO[String, ShortestPathCalc] =
+//    ZIO.fromEither(ShortestPath.run2(g, sourceV = 0)).provideLayer(ShortestPath.live)
 
-  val sp: Either[String, ShortestPathCalc] = ShortestPath.run(g, 0)
+  def program_v2(source: Int, to: Int) =
+    for
+      sp: ShortestPathCalc <- ShortestPath.run2(g, source)
+      actualPath = sp.pathTo(to).toString
+      timeToGet = sp.distToV(to)
+      _ <- Console.printLine(s"THIS IS THE PATH ${actualPath.toString} with ===> ${timeToGet}")
+    yield ()
 
-  val actualPath = sp match
-    case Right(value) => value.pathTo(6).toString
-    case Left(value)  => "no path"
-
-  println(s"This is the shortest path: ${actualPath}")
-
-  println("─" * 100)
+  def run = program_v2(0, 6).provideLayer(ShortestPath.live)

@@ -39,6 +39,8 @@ lazy val commonScalacOptions = Seq(
 lazy val dependencies = Seq(
   libraryDependencies ++= Seq(
     // main dependencies
+    "org.typelevel" %% "cats-core" % "2.7.0",
+    "dev.zio" %% "zio" % "2.0.0",
   ),
   libraryDependencies ++= Seq(
     org.scalatest.scalatest,
