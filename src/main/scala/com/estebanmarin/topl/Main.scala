@@ -3,6 +3,7 @@ package topl
 
 import com.estebanmarin.topl.algService.*
 import com.estebanmarin.topl.algService.EdgeWeightedDigraphOps.*
+import com.estebanmarin.topl.userInput.UserInput
 import zio.*
 
 val g = EdgeWeightedDigraph()
@@ -23,29 +24,31 @@ val g = EdgeWeightedDigraph()
   .addEdge(DirectedEdge(6, 4, 0.93))
 
 object ZIOApp extends ZIOAppDefault:
-//  val program: IO[String, ShortestPathCalc] =
-//    ZIO.fromEither(ShortestPath.run2(g, sourceV = 0)).provideLayer(ShortestPath.live)
+
   def getPathAndTime(source: Int, to: Int) =
     for
-      sp: ShortestPathCalc <- ShortestPath.run2(g, source)
+      sp: ShortestPathCalc <- ShortestPath.run(g, source)
       actualPath = sp.pathTo(to).toString
       timeToGet = sp.distToV(to)
       _ <- Console.printLine(s"THIS IS THE PATH ${actualPath.toString} with ===> ${timeToGet}")
     yield ()
+  // don't Delete
+//  val getInputFromUser: IO[Throwable, (String, String, String)] =
+//    for
+//      _ <- Console.printLine("Welcome to Esteban's Topl program")
+//      from <- Console.readLine("From")
+//      to <- Console.readLine("To")
+//      path <- Console.readLine("file path")
+//    yield (from, to, path)
 
-  val getInputFromUser: IO[Throwable, (String, String, String)] =
+  val interview  =
     for
-      _ <- Console.printLine("Welcome to Esteban's Topl program")
-      from <- Console.readLine("From")
-      to <- Console.readLine("To")
-      path <- Console.readLine("file path")
-    yield (from, to, path)
-
-  val interview =
-    for
-      (from, to, path) <- getInputFromUser
+      (from, to, path) <- UserInput.getInputFromUser
       _ <- getPathAndTime(from.toInt, to.toInt)
+//      _ <- ShortestPath.getPathAndTime(0, 6)
+//      _ <- getPathAndTime(from.toInt, to.toInt)
     yield ()
 
+//  def run = interview.provide(UserInput.live, ShortestPath.live)
 
-  def run = interview.provideLayer(ShortestPath.live)
+  def run = interview.provideLayer(UserInput.live)

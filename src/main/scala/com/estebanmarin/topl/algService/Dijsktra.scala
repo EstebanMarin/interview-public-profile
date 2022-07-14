@@ -30,6 +30,24 @@ object EdgeWeightedDigraphOps:
       EdgeWeightedDigraph(adj)
 
 case class ShortestPath()
+import EdgeWeightedDigraphOps.*
+
+val g = EdgeWeightedDigraph()
+  .addEdge(DirectedEdge(4, 5, 0.35))
+  .addEdge(DirectedEdge(5, 4, 0.35))
+  .addEdge(DirectedEdge(4, 7, 0.37))
+  .addEdge(DirectedEdge(5, 7, 0.28))
+  .addEdge(DirectedEdge(7, 5, 0.28))
+  .addEdge(DirectedEdge(5, 1, 0.32))
+  .addEdge(DirectedEdge(0, 4, 0.38))
+  .addEdge(DirectedEdge(0, 2, 0.26))
+  .addEdge(DirectedEdge(7, 3, 0.39))
+  .addEdge(DirectedEdge(1, 3, 0.29))
+  .addEdge(DirectedEdge(2, 7, 0.34))
+  .addEdge(DirectedEdge(6, 2, 0.40))
+  .addEdge(DirectedEdge(3, 6, 0.52))
+  .addEdge(DirectedEdge(6, 0, 0.58))
+  .addEdge(DirectedEdge(6, 4, 0.93))
 
 object ShortestPath:
   def live = ZLayer.succeed(ShortestPath)
@@ -40,7 +58,15 @@ object ShortestPath:
     * @return return either error as string when input parameters are invalid or return shortest path result
     */
 
-  def run2(g: EdgeWeightedDigraph, sourceV: Int): IO[String, ShortestPathCalc] =
+  def getPathAndTime(source: Int, to: Int) =
+    for
+      sp: ShortestPathCalc <- run(g, source)
+      actualPath = sp.pathTo(to).toString
+      timeToGet = sp.distToV(to)
+      _ <- Console.printLine(s"THIS IS THE PATH ${actualPath.toString} with ===> ${timeToGet}")
+    yield ()
+
+  def run(g: EdgeWeightedDigraph, sourceV: Int): IO[String, ShortestPathCalc] =
     val size = g.adj.size
 
     if (sourceV >= size) ZIO.fromEither(Left(s"Source vertex must in range [0, $size)"))
