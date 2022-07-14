@@ -7,11 +7,10 @@ import com.estebanmarin.topl.userInput.UserInput
 import zio.*
 
 object ZIOApp extends ZIOAppDefault:
-
-  val interview  =
+  val interview: ZIO[ShortestPath, Throwable, Unit] =
     for
       (from, to, path) <- UserInput.getInputFromUser
-      _ <- ShortestPath.getPathAndTime(from, to)
+       _ <- ShortestPath.dijkstraPathAndTime(from, to)
     yield ()
 
-  def run = interview.provideLayer(UserInput.live)
+  def run = interview.provide(ShortestPath.live)

@@ -3,6 +3,7 @@ package com.estebanmarin.topl.algService
 import com.estebanmarin.topl.domain.*
 import zio.*
 
+import javax.management.RuntimeErrorException
 import scala.annotation.tailrec
 import scala.collection.mutable
 
@@ -29,7 +30,6 @@ object EdgeWeightedDigraphOps:
       val adj = g.adj + (e.from -> (list :+ e))
       EdgeWeightedDigraph(adj)
 
-case class ShortestPath()
 import com.estebanmarin.topl.algService.EdgeWeightedDigraphOps.*
 
 val g = EdgeWeightedDigraph()
@@ -49,8 +49,10 @@ val g = EdgeWeightedDigraph()
   .addEdge(DirectedEdge(6, 0, 0.58))
   .addEdge(DirectedEdge(6, 4, 0.93))
 
+case class ShortestPath()
 object ShortestPath:
-  def live = ZLayer.succeed(ShortestPath)
+  def live = ZLayer.succeed(ShortestPath())
+
   /** Function tries to find a shortest path from source vertex to all other vertices in the graph
     *
     * @param g       EdgeWeightedDigraph to find a shortest path
@@ -58,15 +60,52 @@ object ShortestPath:
     * @return return either error as string when input parameters are invalid or return shortest path result
     */
 
-  def getPathAndTime(source: Int, to: Int) =
+  def dijkstraPathAndTime(source: Int, to: Int): IO[Throwable, Unit] =
+    val sp: Either[String, ShortestPathCalc] = ShortestPath.run2(g, source)
+    val either: Either[Throwable, ShortestPathCalc] = sp match
+      case Right(value) => Right(value)
+      case Left(value) => Left(new RuntimeException(s"${value}"))
+    val composableEffect: IO[Throwable, ShortestPathCalc] = ZIO.fromEither(either)
     for
-      sp: ShortestPathCalc <- run(g, source)
+      sp: ShortestPathCalc <- composableEffect
       actualPath = sp.pathTo(to).toString
       timeToGet = sp.distToV(to)
       _ <- Console.printLine(
-        s"THIS IS THE PATH ${actualPath.toString} with ===> ${timeToGet.getOrElse("Nothing")}"
+        s"[Path] ${actualPath.toString} \n Time ===> ${timeToGet.getOrElse("Nothing")}"
       )
     yield ()
+
+  def pathAndTime2(source: Int, to: Int): IO[String, ShortestPathCalc] =
+    val sp: Either[String, ShortestPathCalc] = ShortestPath.run2(g, source)
+    val composableEffect: IO[String, ShortestPathCalc] = ZIO.fromEither(sp)
+    composableEffect
+
+  def run2(g: EdgeWeightedDigraph, sourceV: Int): Either[String, ShortestPathCalc] =
+    val size = g.adj.size
+
+    if (sourceV >= size) Left(s"Source vertex must in range [0, $size)")
+    else
+      val edgeTo = mutable.ArrayBuffer.fill[Option[DirectedEdge]](size)(None)
+      val distTo = mutable.ArrayBuffer.fill(size)(Double.PositiveInfinity)
+
+      // init source distance and add to the queue
+      distTo(sourceV) = 0.0
+      val sourceDist = (sourceV, distTo(sourceV))
+      val sortByWeight: Ordering[(Int, Double)] = (a, b) => a._2.compareTo(b._2)
+      val queue = mutable.PriorityQueue[(Int, Double)](sourceDist)(sortByWeight)
+
+      while (queue.nonEmpty)
+        val (minDestV, _) = queue.dequeue()
+        val edges = g.adj.getOrElse(minDestV, List.empty)
+
+        edges.foreach { e =>
+          if (distTo(e.to) > distTo(e.from) + e.weight)
+            distTo(e.to) = distTo(e.from) + e.weight
+            edgeTo(e.to) = Some(e)
+            if (!queue.exists(_._1 == e.to)) queue.enqueue((e.to, distTo(e.to)))
+        }
+
+      Right(ShortestPathCalc(edgeTo.toSeq, distTo.toSeq))
 
   def run(g: EdgeWeightedDigraph, sourceV: Int): IO[String, ShortestPathCalc] =
     val size = g.adj.size
@@ -94,33 +133,6 @@ object ShortestPath:
         }
 
       ZIO.fromEither(Right(ShortestPathCalc(edgeTo.toSeq, distTo.toSeq)))
-
-//  def run(g: EdgeWeightedDigraph, sourceV: Int): Either[String, ShortestPathCalc] =
-//    val size = g.adj.size
-//
-//    if (sourceV >= size) Left(s"Source vertex must in range [0, $size)")
-//    else
-//      val edgeTo = mutable.ArrayBuffer.fill[Option[DirectedEdge]](size)(None)
-//      val distTo = mutable.ArrayBuffer.fill(size)(Double.PositiveInfinity)
-//
-//      //init source distance and add to the queue
-//      distTo(sourceV) = 0.0
-//      val sourceDist = (sourceV, distTo(sourceV))
-//      val sortByWeight: Ordering[(Int, Double)] = (a, b) => a._2.compareTo(b._2)
-//      val queue = mutable.PriorityQueue[(Int, Double)](sourceDist)(sortByWeight)
-//
-//      while (queue.nonEmpty)
-//        val (minDestV, _) = queue.dequeue()
-//        val edges = g.adj.getOrElse(minDestV, List.empty)
-//
-//        edges.foreach { e =>
-//          if (distTo(e.to) > distTo(e.from) + e.weight)
-//            distTo(e.to) = distTo(e.from) + e.weight
-//            edgeTo(e.to) = Some(e)
-//            if (!queue.exists(_._1 == e.to)) queue.enqueue((e.to, distTo(e.to)))
-//        }
-//
-//      Right(ShortestPathCalc(edgeTo.toSeq, distTo.toSeq))
 
 /** @param edgeTo a sequence which represents the last edge on the shortest path from 'sourceV' to vertex i.
   *               None means there is no path to vertex i
