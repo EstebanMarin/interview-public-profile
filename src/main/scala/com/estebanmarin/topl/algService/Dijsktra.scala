@@ -30,7 +30,7 @@ object EdgeWeightedDigraphOps:
       EdgeWeightedDigraph(adj)
 
 case class ShortestPath()
-import EdgeWeightedDigraphOps.*
+import com.estebanmarin.topl.algService.EdgeWeightedDigraphOps.*
 
 val g = EdgeWeightedDigraph()
   .addEdge(DirectedEdge(4, 5, 0.35))
@@ -63,7 +63,9 @@ object ShortestPath:
       sp: ShortestPathCalc <- run(g, source)
       actualPath = sp.pathTo(to).toString
       timeToGet = sp.distToV(to)
-      _ <- Console.printLine(s"THIS IS THE PATH ${actualPath.toString} with ===> ${timeToGet}")
+      _ <- Console.printLine(
+        s"THIS IS THE PATH ${actualPath.toString} with ===> ${timeToGet.getOrElse("Nothing")}"
+      )
     yield ()
 
   def run(g: EdgeWeightedDigraph, sourceV: Int): IO[String, ShortestPathCalc] =
