@@ -1,14 +1,18 @@
 # Esteban Marin Interview process
 
 [Esteban Marin Linked Profile](https://www.linkedin.com/in/estebanmarincom/)
-##Running the project
+
+## Running the project
+
 ```shell
 $ topl> sbt
 $ sbt> run
 ```
+
 ---
 _Note_: You can run just `sbt`
 To display all available options from the SBT tool
+
 ```shell
 [info] ╭─────────────────────────────────╮
 [info] │     List of defined aliases     │
@@ -30,10 +34,17 @@ To display all available options from the SBT tool
 git:main:99e67f1:sbt:topl>
 
 ```
+
 ## Description
 
 This is a ZIO 2 app, which stated from a Scala3 seed from [DevInsideYou](https://github.com/DevInsideYou/scala3-seed.g8)
 for a sane sbt scaffolding
+
+## Dijkstra Algorithm and Implementation
+
+This is a known alg therefore I based my implementation in the following resource
+
+- [Alexey-Novakov](https://medium.com/se-notes-by-alexey-novakov/algorithms-in-scala-dijkstra-shortest-path-78c4291dd8ab)
 
 ### Git
 

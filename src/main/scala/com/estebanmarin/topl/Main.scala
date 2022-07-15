@@ -2,7 +2,7 @@ package com.estebanmarin
 package topl
 
 import com.estebanmarin.topl.JSONService.JSONService
-import com.estebanmarin.topl.algService.*
+import com.estebanmarin.topl.algService.ShortestPath
 import com.estebanmarin.topl.userInput.UserInput
 import zio.*
 
