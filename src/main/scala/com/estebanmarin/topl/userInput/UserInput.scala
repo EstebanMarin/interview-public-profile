@@ -9,7 +9,7 @@ object UserInput:
       _ <- Console.printLine("Esteban's Marin Topl interview")
       from <- Console.readLine("Type starting node (i.e 0) => ")
       to <- Console.readLine("Type ending node (i.e. 6)  =>  ")
-      path <- Console.readLine("file path  => ")
+      path <- Console.readLine("file path [DEFAULT => src/resources/sample-data.json] (enter) => ")
     yield (from.toInt, to.toInt, path)
 
   val live = ZLayer.succeed(UserInput)
