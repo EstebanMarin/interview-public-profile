@@ -10,8 +10,12 @@ object ZIOApp extends ZIOAppDefault:
   val interview: ZIO[ShortestPath & JSONService, Throwable, Unit] =
     for
       (from, to, path) <- UserInput.getInputFromUser
-      data <- JSONService.testInterruptFileDisplay
+      data <- JSONService.runInDifferentFork(path)
       _ <- ShortestPath.dijkstraPathAndTime(from, to)
     yield ()
 
-  def run = interview.provide(ShortestPath.live, JSONService.live)
+  def run = interview.provide(
+    ShortestPath.live,
+    JSONService.live,
+//    ZLayer.Debug.mermaid,
+  )

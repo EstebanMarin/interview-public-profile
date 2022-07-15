@@ -5,7 +5,7 @@
 ## Running the project
 
 ```shell
-$ topl> sbt
+$ esteban-interview> sbt
 $ sbt> run
 ```
 

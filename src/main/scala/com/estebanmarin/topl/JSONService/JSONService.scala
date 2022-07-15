@@ -1,42 +1,37 @@
 package com.estebanmarin.topl.JSONService
 
+import com.estebanmarin.topl.domain.*
 import zio.*
+import zio.json.*
 
 import java.io.File
-import java.util.Scanner
+import scala.io.*
 
-case class JSONService():
-  def open() = ZIO.attempt(s"openning connection to")
-  def close() = ZIO.succeed(s"openning connection to")
+case class JSONService()
 
 object JSONService:
-  def create = ZIO.succeed(JSONService())
   def live = ZLayer.succeed(JSONService())
 
-  private def getFile(filePath: String) =
-    ZIO.acquireRelease(JSONService.create)(_.close())
+  def open(path: String) = ZIO.attempt(new File(path))
+  def close(file: File) = ZIO.succeed(Source.fromFile(file).close())
 
-  private def openFileScanner(path: String): UIO[Scanner] =
-    ZIO.succeed(new Scanner(new File(path)))
+  implicit class RichFile(file: File):
+    def read(): Iterator[String] = Source.fromFile(file).getLines()
 
-  private def closeFileResource(scanner: Scanner): UIO[Unit] =
-    ZIO.succeed(s"[ZIOJSON] closing file") *> ZIO.succeed(scanner.close())
+  private def useJSON(file: File): IO[Throwable, TrafficMeasurements] =
+    val trafficMeasurements: Either[String, TrafficMeasurements] =
+      file.read().reduce(_ + _).fromJson[TrafficMeasurements]
+    trafficMeasurements match
+      case Right(traffic) => ZIO.succeed(traffic)
+      case Left(value) => ZIO.fail(new RuntimeException(s"$value"))
 
-  private def useJSONFile(scanner: Scanner): IO[Throwable, String] =
-//    if(scanner.hasN)
-    ???
-  def acquireOpenFile(path: String): IO[Throwable, String] =
-    ZIO.acquireReleaseWith(openFileScanner(path))(closeFileResource)(useJSONFile)
+  private def openFileAndTransform(path: String): IO[Throwable, TrafficMeasurements] =
+    ZIO.acquireReleaseWith(JSONService.open(path))(close)(useJSON)
 
-  val testInterruptFileDisplay: ZIO[Any, Nothing, Unit] =
-    for
-      fiber <- acquireOpenFile("src/resources/sample-data.json").fork
-      _ <- ZIO.sleep(2.seconds) *> fiber.interrupt
-    yield ()
-
-  def getTransformJSON(filePath: String): ZIO[Any, Throwable, Unit] =
+  def runInDifferentFork(path: String) =
     ZIO.scoped(for
-      fib <- getFile(filePath).fork
-      _ <- ZIO.sleep(1.second) *> ZIO.succeed("Interrupting") *> fib.interrupt
-      _ <- fib.join
-    yield ())
+      _ <- Console.printLine(path)
+//      fib <- openFileAndTransform("src/resources/sample-data.json").fork
+      fib <- openFileAndTransform("src/resources/testable.json").fork
+      test <- fib.join
+    yield test)
