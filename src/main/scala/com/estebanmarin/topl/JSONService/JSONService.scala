@@ -1,11 +1,15 @@
 package com.estebanmarin.topl.JSONService
 
-import  zio.*
+import zio.*
 
-case class JSONService():
-  def open() = ZIO.succeed(s"openinig connection to")
-  def close() = ZIO.succeed(s"openinig connection to")
+case class JSONService(filePath: String):
+  def open() = ZIO.succeed(s"openning connection to")
+  def close() = ZIO.succeed(s"openning connection to")
 
 object JSONService:
-  def live = ZLayer.succeed(JSONService())
+  def create(filePath: String) = ZIO.attempt(JSONService(filePath))
+  def live = ZLayer.fromFunction(create)
+
+  val cleanConnection = ZIO.acquireRelease(JSONService.create("/resources/sample-data.json"))
+
 //  def getFile = ZIO.fromTry()
