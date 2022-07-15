@@ -1,15 +1,25 @@
 package com.estebanmarin.topl.userInput
 
+import com.estebanmarin.topl.Domain.*
 import zio.*
 
+object StringInputOps:
+  extension (st: String)
+    // add additional validations
+    // TODO Make sure to update mapping of nodeID
+    def toNode: Node = Node(avenue = st.head.toString, street = st.tail.toInt, nodeID = 1)
+
+import com.estebanmarin.topl.userInput.StringInputOps.*
+
 case class UserInput()
+
 object UserInput:
-  val getInputFromUser: IO[Throwable, (Int, Int, String)] =
+  val getInputFromUser: IO[Throwable, (Node, Node, String)] =
     for
       _ <- Console.printLine("Esteban's Marin Topl interview")
-      from <- Console.readLine("Type starting node (i.e 0) => ")
-      to <- Console.readLine("Type ending node (i.e. 6)  =>  ")
+      from: String <- Console.readLine("Type starting node Node(avenue, street) => (i.e B5): ")
+      to: String <- Console.readLine("Type ending node Node(avenue, street) => (i.e D5)    ")
       path <- Console.readLine("file path [DEFAULT => src/resources/sample-data.json] (enter) => ")
-    yield (from.toInt, to.toInt, path)
+    yield (from.toNode, to.toNode, path)
 
   val live = ZLayer.succeed(UserInput)

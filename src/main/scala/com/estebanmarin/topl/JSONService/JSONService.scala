@@ -1,6 +1,6 @@
 package com.estebanmarin.topl.JSONService
 
-import com.estebanmarin.topl.domain.*
+import com.estebanmarin.topl.Domain.*
 import zio.*
 import zio.json.*
 

@@ -2,21 +2,26 @@ package com.estebanmarin
 package topl
 
 import com.estebanmarin.topl.JSONService.JSONService
-import com.estebanmarin.topl.algService.ShortestPath
-import com.estebanmarin.topl.domain.*
+import com.estebanmarin.topl.WeightedDiagram.WeightedDiagram
+import com.estebanmarin.topl.algService.{ EdgeWeightedGraph, ShortestPath }
+import com.estebanmarin.topl.Domain.*
 import com.estebanmarin.topl.userInput.UserInput
 import zio.*
 
 object ZIOApp extends ZIOAppDefault:
-  val interview: ZIO[ShortestPath & JSONService, Throwable, Unit] =
+  val interview: ZIO[ShortestPath & JSONService & WeightedDiagram, Throwable, Unit] =
     for
-      (from, to, path) <- UserInput.getInputFromUser
+      (from: Node, to: Node, path: String) <- UserInput.getInputFromUser
       trafficMetrics: TrafficMeasurements <- JSONService.JSONFileToClass(path)
-      _ <- ShortestPath.dijkstraPathAndTime(from, to)
+      weightedDiagrams: List[EdgeWeightedGraph] <- WeightedDiagram.generateDiagrams(trafficMetrics)
+      optimizedPathsRefactor: List[OptimalPerTimeStamp] <- ShortestPath.dijkstraPathAndTimeRefactor(from, to, weightedDiagrams)
+//      solution: Solution <- ShortestPath.dijkstraPathAndTime(from, to, weightedDiagrams)
+//      test <- weightedDiagrams.map(ShortestPath.dijkstraPathAndTime(from, to, _))
     yield ()
 
   def run = interview.provide(
+    //    ZLayer.Debug.mermaid,
     ShortestPath.live,
     JSONService.live,
-//    ZLayer.Debug.mermaid,
+    WeightedDiagram.live,
   )
