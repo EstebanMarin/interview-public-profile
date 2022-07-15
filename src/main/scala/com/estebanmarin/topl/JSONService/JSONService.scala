@@ -28,10 +28,9 @@ object JSONService:
   private def openFileAndTransform(path: String): IO[Throwable, TrafficMeasurements] =
     ZIO.acquireReleaseWith(JSONService.open(path))(close)(useJSON)
 
-  def runInDifferentFork(path: String) =
+  def JSONFileToClass(path: String) =
     ZIO.scoped(for
       _ <- Console.printLine(path)
-//      fib <- openFileAndTransform("src/resources/sample-data.json").fork
-      fib <- openFileAndTransform("src/resources/testable.json").fork
-      test <- fib.join
-    yield test)
+      fib <- openFileAndTransform("src/resources/sample-data.json").fork
+      trafficMeasurements: TrafficMeasurements <- fib.join
+    yield trafficMeasurements)
