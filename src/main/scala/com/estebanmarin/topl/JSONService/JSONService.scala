@@ -16,22 +16,27 @@ object JSONService:
   private def getFile(filePath: String) =
     ZIO.acquireRelease(JSONService.create)(_.close())
 
-  def openFileScanner(path: String): UIO[Scanner] =
+  private def openFileScanner(path: String): UIO[Scanner] =
     ZIO.succeed(new Scanner(new File(path)))
 
-  def acquireOpenFile(path: String): IO[Throwable, Unit] =
-    Console.printLine(path)
+  private def closeFileResource(scanner: Scanner): UIO[Unit] =
+    ZIO.succeed(s"[ZIOJSON] closing file") *> ZIO.succeed(scanner.close())
 
-  val testInterruptFileDisplay =
-      for
-        _ <- acquireOpenFile("src/resources/sample-data.json")
-      yield ()
+  private def useJSONFile(scanner: Scanner): IO[Throwable, String] =
+//    if(scanner.hasN)
+    ???
+  def acquireOpenFile(path: String): IO[Throwable, String] =
+    ZIO.acquireReleaseWith(openFileScanner(path))(closeFileResource)(useJSONFile)
 
+  val testInterruptFileDisplay: ZIO[Any, Nothing, Unit] =
+    for
+      fiber <- acquireOpenFile("src/resources/sample-data.json").fork
+      _ <- ZIO.sleep(2.seconds) *> fiber.interrupt
+    yield ()
 
   def getTransformJSON(filePath: String): ZIO[Any, Throwable, Unit] =
     ZIO.scoped(for
       fib <- getFile(filePath).fork
-      _  <- ZIO.sleep(1.second) *> ZIO.succeed("Interrupting") *> fib.interrupt
-      _  <- fib.join
+      _ <- ZIO.sleep(1.second) *> ZIO.succeed("Interrupting") *> fib.interrupt
+      _ <- fib.join
     yield ())
-
