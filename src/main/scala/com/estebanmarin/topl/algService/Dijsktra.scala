@@ -21,9 +21,14 @@ object ShortestPath:
     * @return return either error as string when input parameters are invalid or return shortest path result
     */
 
-  def dijkstraPathAndTimeRefactor(source: Node, to: Node, edgeWeightedDigraphs: List[EdgeWeightedGraph]): IO[Throwable, List[OptimalPerTimeStamp]] =
+  def dijkstraPathAndTimeRefactor(source: Node, to: Node, edgeWeightedDigraphs: List[WGraphPerTimeStamp]): IO[Throwable, List[OptimalPerTimeStamp]] =
 //    val test: Seq[Either[String, ShortestPathCalc]] = edgeWeightedDigraphs.map(ShortestPath.runAlgorithm(_, source.nodeID))
-    val sp: Either[String, ShortestPathCalc] = ShortestPath.runAlgorithm(edgeWDiagram, 0)
+//    edgeWeightedDigraphs.head.wGraphNode.head.nodeMap.get(Node)
+//    val sp =
+//    for
+//     test: WGraphPerTimeStamp <- edgeWeightedDigraphs
+//      test2 = test.wGraphNode.map(wdgNode => ShortestPath.runAlgorithm(wdgNode.adj, 5))
+//    yield
     ???
 
   def dijkstraPathAndTime(source: Int, to: Int): IO[Throwable, Unit] =

@@ -1,12 +1,33 @@
 package com.estebanmarin.topl.WeightedDiagram
 
-import com.estebanmarin.topl.algService.{DirectedEdge, EdgeWeightedGraph, EdgeWeightedGraphNodetrace}
-import com.estebanmarin.topl.Domain.{MeasurementTimeStamp, TrafficMeasurements}
-import zio.*
+import com.estebanmarin.topl.Domain.*
 import com.estebanmarin.topl.algService.EdgeWeightedDigraphOps.*
+import com.estebanmarin.topl.algService.*
+import zio.*
 
 case class WeightedDiagram()
 object WeightedDiagram:
+  def live = ZLayer.succeed(WeightedDiagram())
+  private def measurementToNode(measurement: List[Measurement]): List[EdgeWeightedGraphNodetrace] =
+    val edgeWeightedGraphNode: EdgeWeightedGraphNodetrace = EdgeWeightedGraphNodetrace()
+    measurement.map((measurement: Measurement) =>
+      edgeWeightedGraphNode.addEdge(
+        DirectedEdgeNode(
+          from = Node(measurement.startAvenue, measurement.startStreet),
+          to = Node(measurement.endAvenue, measurement.endStreet),
+          weight = measurement.transitTime,
+        )
+      )
+    )
+
+  def generateDiagrams(trafficMeasurements: TrafficMeasurements): IO[Throwable, List[WGraphPerTimeStamp]] =
+    ZIO.attempt(
+      for
+        cityMap: MeasurementTimeStamp <- trafficMeasurements.trafficMeasurements
+        listOfDiagramsPerTimeStamp = WGraphPerTimeStamp(cityMap.measurementTime, measurementToNode(cityMap.measurements))
+      yield listOfDiagramsPerTimeStamp
+    )
+
   val g = EdgeWeightedGraph()
     .addEdge(DirectedEdge(4, 5, 0.35))
     .addEdge(DirectedEdge(5, 4, 0.35))
@@ -23,11 +44,3 @@ object WeightedDiagram:
     .addEdge(DirectedEdge(3, 6, 0.52))
     .addEdge(DirectedEdge(6, 0, 0.58))
     .addEdge(DirectedEdge(6, 4, 0.93))
-  def live = ZLayer.succeed(WeightedDiagram())
-  def generateDiagrams(trafficMeasurements: TrafficMeasurements): IO[Throwable, List[EdgeWeightedGraphNodetrace]] =
-    for
-     cityMap: MeasurementTimeStamp <- trafficMeasurements.trafficMeasurements
-      
-//     test = cityMap.measurements.map(measurement => )
-    yield ()
-    ???

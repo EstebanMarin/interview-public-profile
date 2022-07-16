@@ -14,7 +14,9 @@ final case class DirectedEdgeNode(
     weight: Double,
   )
 
-final case class EdgeWeightedGraphNodetrace(adj: Map[Int, List[DirectedEdge]] = Map.empty, nodeMap: Map[Node, Int] = Map.empty)
+type MapDirectedEdges = Map[Int, List[DirectedEdge]]
+
+final case class EdgeWeightedGraphNodetrace(adj: MapDirectedEdges = Map.empty, nodeMap: Map[Node, Int] = Map.empty)
 object EdgeWeightedGraphNodetrace:
   extension (g: EdgeWeightedGraphNodetrace)
     def addEdge(e: DirectedEdgeNode): EdgeWeightedGraphNodetrace =
@@ -33,11 +35,12 @@ object EdgeWeightedGraphNodetrace:
         DirectedEdge(from = NodeFromID, to = NodetoID, weight = e.weight)
 
       val list: List[DirectedEdge] = g.adj.getOrElse(NodeFromID, List.empty)
-      val adj: Map[Int, List[DirectedEdge]] = g.adj + (NodeFromID -> (list :+ nodeToEdge(e)))
+      val adj: MapDirectedEdges = g.adj + (NodeFromID -> (list :+ nodeToEdge(e)))
+      val test: EdgeWeightedGraph = EdgeWeightedGraph(adj)
 
       EdgeWeightedGraphNodetrace(adj, updateNodeMap)
 
-final case class EdgeWeightedGraph(adj: Map[Int, List[DirectedEdge]] = Map.empty)
+final case class EdgeWeightedGraph(adj: MapDirectedEdges = Map.empty)
 
 object EdgeWeightedDigraphOps:
   implicit class EdgeWeightedDigraphOps(g: EdgeWeightedGraph):

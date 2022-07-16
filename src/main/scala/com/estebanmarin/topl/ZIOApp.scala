@@ -13,9 +13,9 @@ object ZIOApp extends ZIOAppDefault:
     for
       (from: Node, to: Node, path: String) <- UserInput.getInputFromUser
       trafficMetrics: TrafficMeasurements <- JSONService.JSONFileToClass(path)
-      weightedDiagrams: List[EdgeWeightedGraphNodetrace] <- WeightedDiagram.generateDiagrams(trafficMetrics)
+//      weightedDiagrams: List[WGraphPerTimeStamp] <- WeightedDiagram.generateDiagrams(trafficMetrics)
 //      optimizedPathsRefactor: List[OptimalPerTimeStamp] <- ShortestPath.dijkstraPathAndTimeRefactor(from, to, weightedDiagrams)
-      _ <- ShortestPath.dijkstraPathAndTime(0, 3)
+      _ <- ShortestPath.dijkstraPathAndTime(0, 4)
 //      test <- weightedDiagrams.map(ShortestPath.dijkstraPathAndTime(from, to, _))
     yield ()
 

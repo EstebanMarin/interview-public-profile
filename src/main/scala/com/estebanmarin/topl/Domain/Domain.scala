@@ -1,5 +1,6 @@
 package com.estebanmarin.topl.Domain
 
+import com.estebanmarin.topl.algService.EdgeWeightedGraphNodetrace
 import zio.json.*
 
 type Avenue = String
@@ -32,6 +33,8 @@ object TrafficMeasurements:
 case class OptimalPath(measurament: TimeStamp, time: TransitTime)
 object OptimalPath:
   given encoder: JsonEncoder[OptimalPath] = DeriveJsonEncoder.gen[OptimalPath]
+
+case class WGraphPerTimeStamp(time: TimeStamp, wGraphNode: List[EdgeWeightedGraphNodetrace])
 
 type OptimalPerTimeStamp = (TimeStamp, TransitTime)
 case class Solution(
