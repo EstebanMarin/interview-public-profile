@@ -8,7 +8,7 @@ import zio.*
 case class WeightedDiagram()
 object WeightedDiagram:
   def live = ZLayer.succeed(WeightedDiagram())
-  private def measurementToNode(measurement: List[Measurement]): List[EdgeWeightedGraphNodetrace] =
+  private def measurementToNode(measurement: List[Measurement]): EdgeWeightedGraphNodetrace =
     val edgeWeightedGraphNode: EdgeWeightedGraphNodetrace = EdgeWeightedGraphNodetrace()
     measurement.map((measurement: Measurement) =>
       edgeWeightedGraphNode.addEdge(
@@ -19,12 +19,13 @@ object WeightedDiagram:
         )
       )
     )
+    edgeWNodeDiagram
 
   def generateDiagrams(trafficMeasurements: TrafficMeasurements): IO[Throwable, List[WGraphPerTimeStamp]] =
     ZIO.attempt(
       for
         cityMap: MeasurementTimeStamp <- trafficMeasurements.trafficMeasurements
-        listOfDiagramsPerTimeStamp = WGraphPerTimeStamp(cityMap.measurementTime, measurementToNode(cityMap.measurements))
+        listOfDiagramsPerTimeStamp: WGraphPerTimeStamp = WGraphPerTimeStamp(cityMap.measurementTime, measurementToNode(cityMap.measurements))
       yield listOfDiagramsPerTimeStamp
     )
 

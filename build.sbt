@@ -44,9 +44,6 @@ lazy val dependencies = Seq(
     "org.typelevel" %% "cats-core" % "2.7.0",
     "dev.zio" %% "zio" % "2.0.0",
     "dev.zio" %% "zio-json" % "0.3.0-RC10",
-    "io.circe" %% "circe-core" % circeVersion,
-    "io.circe" %% "circe-generic" % circeVersion,
-    "io.circe" %% "circe-parser" % circeVersion,
   ),
   libraryDependencies ++= Seq(
     org.scalatest.scalatest,

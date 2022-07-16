@@ -21,33 +21,35 @@ object ShortestPath:
     * @return return either error as string when input parameters are invalid or return shortest path result
     */
 
-  def dijkstraPathAndTimeRefactor(source: Node, to: Node, edgeWeightedDigraphs: List[WGraphPerTimeStamp]): IO[Throwable, List[OptimalPerTimeStamp]] =
-//    val test: Seq[Either[String, ShortestPathCalc]] = edgeWeightedDigraphs.map(ShortestPath.runAlgorithm(_, source.nodeID))
-//    edgeWeightedDigraphs.head.wGraphNode.head.nodeMap.get(Node)
-//    val sp =
-//    for
-//     test: WGraphPerTimeStamp <- edgeWeightedDigraphs
-//      test2 = test.wGraphNode.map(wdgNode => ShortestPath.runAlgorithm(wdgNode.adj, 5))
-//    yield
-    ???
+  def dijkstraPathAndTime(
+      source: Node,
+      to: Node,
+      edgeWeightedDigraphs: List[WGraphPerTimeStamp],
+//    ): IO[Throwable, List[OptimalPerTimeStamp]] =
+    ): IO[Throwable, OptimalPerTimeStamp] =
+    def getString(sp: Either[String, ShortestPathCalc]) =
+      sp match
+        case Right(spCalc) => spCalc
+        case Left(value)   => value
+    val calculateOptimaTuple  =
+      for
+        graphToOptimize: WGraphPerTimeStamp <- edgeWeightedDigraphs
+        sp: Either[String, ShortestPathCalc] = ShortestPath.runAlgorithm(graphToOptimize.wGraphNode.adj, graphToOptimize.wGraphNode.nodeMap.getOrElse(source, 0))
+      yield (graphToOptimize.time, sp)
 
-  def dijkstraPathAndTime(source: Int, to: Int): IO[Throwable, Unit] =
-    val sp: Either[String, ShortestPathCalc] = ShortestPath.runAlgorithm(edgeWDiagram2, source)
+    val sp = ShortestPath.runAlgorithm(edgeWeightedDigraphs.head.wGraphNode.adj, edgeWeightedDigraphs.head.wGraphNode.nodeMap.getOrElse(source, 0))
     val either: Either[Throwable, ShortestPathCalc] = sp match
       case Right(value) => Right(value)
       case Left(value) => Left(new RuntimeException(s"${value}"))
     val composableEffect: IO[Throwable, ShortestPathCalc] = ZIO.fromEither(either)
     for
       sp: ShortestPathCalc <- composableEffect
-      actualPath = sp.pathTo(to).toString
-      timeToGet = sp.distToV(to)
-      _ <- Console.printLine(
-        s"[Path] ${actualPath.toString} \n Time ===> ${timeToGet.getOrElse("There is not path between the nodes")}"
-      )
-    yield ()
+      actualPath: String = sp.pathTo(edgeWeightedDigraphs.head.wGraphNode.nodeMap.getOrElse(to, 1)).toString
+      timeToGet: Double = sp.distToV(edgeWeightedDigraphs.head.wGraphNode.nodeMap.getOrElse(to, 1)).getOrElse(Double.PositiveInfinity)
+    yield (edgeWeightedDigraphs.head.time, actualPath, timeToGet)
 
-  def runAlgorithm(g: EdgeWeightedGraph, sourceV: Int): Either[String, ShortestPathCalc] =
-    val size = g.adj.size
+  def runAlgorithm(g: MapDirectedEdges, sourceV: Int): Either[String, ShortestPathCalc] =
+    val size = g.size
 
     if (sourceV >= size) Left(s"Source vertex must in range [0, $size)")
     else
@@ -62,7 +64,7 @@ object ShortestPath:
 
       while (queue.nonEmpty)
         val (minDestV, _) = queue.dequeue()
-        val edges = g.adj.getOrElse(minDestV, List.empty)
+        val edges = g.getOrElse(minDestV, List.empty)
 
         edges.foreach { e =>
           if (distTo(e.to) > distTo(e.from) + e.weight)

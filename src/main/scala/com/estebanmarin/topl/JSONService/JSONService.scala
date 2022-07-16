@@ -34,3 +34,5 @@ object JSONService:
       fib <- openFileAndTransform("src/resources/sample-data.json").fork
       trafficMeasurements: TrafficMeasurements <- fib.join
     yield trafficMeasurements)
+
+  def getJsonSolution(s: OptimalPerTimeStamp, from: Node, to: Node) = ZIO.succeed(Solution(from, to, s).toJson)

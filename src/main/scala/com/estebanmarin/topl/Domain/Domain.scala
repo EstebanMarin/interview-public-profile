@@ -34,19 +34,20 @@ case class OptimalPath(measurament: TimeStamp, time: TransitTime)
 object OptimalPath:
   given encoder: JsonEncoder[OptimalPath] = DeriveJsonEncoder.gen[OptimalPath]
 
-case class WGraphPerTimeStamp(time: TimeStamp, wGraphNode: List[EdgeWeightedGraphNodetrace])
+case class WGraphPerTimeStamp(time: TimeStamp, wGraphNode: EdgeWeightedGraphNodetrace)
 
-type OptimalPerTimeStamp = (TimeStamp, TransitTime)
+type OptimalPerTimeStamp = (TimeStamp, String, TransitTime)
 case class Solution(
     starting: Node,
     ending: Node,
-    solutions: List[OptimalPerTimeStamp],
+//    solutions: List[OptimalPerTimeStamp],
+    solution: OptimalPerTimeStamp,
   )
 object Solution:
   given encoder: JsonEncoder[Solution] = DeriveJsonEncoder.gen[Solution]
   def apply(
       starting: Node,
       ending: Node,
-      solution: List[OptimalPerTimeStamp],
+      solution: OptimalPerTimeStamp,
     ) =
     new Solution(starting, ending, solution)

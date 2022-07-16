@@ -13,10 +13,10 @@ object ZIOApp extends ZIOAppDefault:
     for
       (from: Node, to: Node, path: String) <- UserInput.getInputFromUser
       trafficMetrics: TrafficMeasurements <- JSONService.JSONFileToClass(path)
-//      weightedDiagrams: List[WGraphPerTimeStamp] <- WeightedDiagram.generateDiagrams(trafficMetrics)
-//      optimizedPathsRefactor: List[OptimalPerTimeStamp] <- ShortestPath.dijkstraPathAndTimeRefactor(from, to, weightedDiagrams)
-      _ <- ShortestPath.dijkstraPathAndTime(0, 4)
-//      test <- weightedDiagrams.map(ShortestPath.dijkstraPathAndTime(from, to, _))
+      weightedDiagrams: List[WGraphPerTimeStamp] <- WeightedDiagram.generateDiagrams(trafficMetrics)
+      optimizedPaths: OptimalPerTimeStamp <- ShortestPath.dijkstraPathAndTime(from, to, weightedDiagrams)
+      jsonSolution: String  <- JSONService.getJsonSolution(optimizedPaths, from, to)
+      _  <- ZIO.succeed(println(optimizedPaths))
     yield ()
 
   def run = interview.provide(
