@@ -9,18 +9,18 @@ import com.estebanmarin.topl.userInput.UserInput
 import zio.*
 
 object ZIOApp extends ZIOAppDefault:
-  val interview: ZIO[ShortestPath & JSONService & WeightedDiagram, Throwable, Unit] =
+  val interview: ZIO[UserInput & ShortestPath & JSONService & WeightedDiagram, Throwable, Unit] =
     for
       (from: Node, to: Node, path: String) <- UserInput.getInputFromUser
       trafficMetrics: TrafficMeasurements <- JSONService.JSONFileToClass(path)
-      weightedDiagrams: List[WGraphPerTimeStamp] <- WeightedDiagram.generateDiagrams(trafficMetrics)
+      weightedDiagrams: List[WGraphPerTimeStamp] <- WeightedDiagram.impedanceReducer(trafficMetrics)
       optimizedPaths: OptimalPerTimeStamp <- ShortestPath.dijkstraPathAndTime(from, to, weightedDiagrams)
       jsonSolution: String  <- JSONService.getJsonSolution(optimizedPaths, from, to)
       _  <- ZIO.succeed(println(optimizedPaths))
     yield ()
 
   def run = interview.provide(
-    //    ZLayer.Debug.mermaid,
+    UserInput.live,
     ShortestPath.live,
     JSONService.live,
     WeightedDiagram.live,

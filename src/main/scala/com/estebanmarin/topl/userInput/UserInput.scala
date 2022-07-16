@@ -5,14 +5,11 @@ import zio.*
 
 object StringInputOps:
   extension (st: String)
-    // add additional validations
-    // TODO Make sure to update mapping of nodeID
     def toNode: Node = Node(avenue = st.head.toString, street = st.tail.toInt)
 
 import com.estebanmarin.topl.userInput.StringInputOps.*
 
 case class UserInput()
-
 object UserInput:
   val getInputFromUser: IO[Throwable, (Node, Node, String)] =
     for
@@ -22,4 +19,4 @@ object UserInput:
       path <- Console.readLine("file path [DEFAULT => src/resources/sample-data.json] (enter) => ")
     yield (from.toNode, to.toNode, path)
 
-  val live = ZLayer.succeed(UserInput)
+  val live = ZLayer.succeed(UserInput())

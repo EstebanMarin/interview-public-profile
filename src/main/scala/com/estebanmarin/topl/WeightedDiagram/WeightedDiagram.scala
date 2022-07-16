@@ -21,7 +21,7 @@ object WeightedDiagram:
     )
     edgeWNodeDiagram
 
-  def generateDiagrams(trafficMeasurements: TrafficMeasurements): IO[Throwable, List[WGraphPerTimeStamp]] =
+  def impedanceReducer(trafficMeasurements: TrafficMeasurements): IO[Throwable, List[WGraphPerTimeStamp]] =
     ZIO.attempt(
       for
         cityMap: MeasurementTimeStamp <- trafficMeasurements.trafficMeasurements
