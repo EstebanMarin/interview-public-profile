@@ -1,6 +1,6 @@
 package com.estebanmarin.topl.WeightedDiagram
 
-import com.estebanmarin.topl.algService.{DirectedEdge, EdgeWeightedGraph}
+import com.estebanmarin.topl.algService.{DirectedEdge, EdgeWeightedGraph, EdgeWeightedGraphNodetrace}
 import com.estebanmarin.topl.Domain.{MeasurementTimeStamp, TrafficMeasurements}
 import zio.*
 import com.estebanmarin.topl.algService.EdgeWeightedDigraphOps.*
@@ -24,9 +24,10 @@ object WeightedDiagram:
     .addEdge(DirectedEdge(6, 0, 0.58))
     .addEdge(DirectedEdge(6, 4, 0.93))
   def live = ZLayer.succeed(WeightedDiagram())
-  def generateDiagrams(trafficMeasurements: TrafficMeasurements): IO[Throwable, List[EdgeWeightedGraph]] =
+  def generateDiagrams(trafficMeasurements: TrafficMeasurements): IO[Throwable, List[EdgeWeightedGraphNodetrace]] =
     for
      cityMap: MeasurementTimeStamp <- trafficMeasurements.trafficMeasurements
+      
 //     test = cityMap.measurements.map(measurement => )
     yield ()
     ???

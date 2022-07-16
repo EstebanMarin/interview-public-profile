@@ -23,10 +23,11 @@ object ShortestPath:
 
   def dijkstraPathAndTimeRefactor(source: Node, to: Node, edgeWeightedDigraphs: List[EdgeWeightedGraph]): IO[Throwable, List[OptimalPerTimeStamp]] =
 //    val test: Seq[Either[String, ShortestPathCalc]] = edgeWeightedDigraphs.map(ShortestPath.runAlgorithm(_, source.nodeID))
+    val sp: Either[String, ShortestPathCalc] = ShortestPath.runAlgorithm(edgeWDiagram, 0)
     ???
 
-  def dijkstraPathAndTime(source: Int, to: Int, edgeWeightedDigraph: List[EdgeWeightedGraph]): IO[Throwable, Unit] =
-    val sp: Either[String, ShortestPathCalc] = ShortestPath.runAlgorithm(edgeWeightedDigraph.head, source)
+  def dijkstraPathAndTime(source: Int, to: Int): IO[Throwable, Unit] =
+    val sp: Either[String, ShortestPathCalc] = ShortestPath.runAlgorithm(edgeWDiagram2, source)
     val either: Either[Throwable, ShortestPathCalc] = sp match
       case Right(value) => Right(value)
       case Left(value) => Left(new RuntimeException(s"${value}"))
