@@ -7,7 +7,7 @@ object StringInputOps:
   extension (st: String)
     // add additional validations
     // TODO Make sure to update mapping of nodeID
-    def toNode: Node = Node(avenue = st.head.toString, street = st.tail.toInt, nodeID = 1)
+    def toNode: Node = Node(avenue = st.head.toString, street = st.tail.toInt)
 
 import com.estebanmarin.topl.userInput.StringInputOps.*
 

@@ -1,23 +1,44 @@
 package com.estebanmarin.topl.algService
 
+import com.estebanmarin.topl.Domain.*
+
 final case class DirectedEdge(
     from: Int,
     to: Int,
     weight: Double,
   )
 
+final case class DirectedEdgeNode(
+    from: Node,
+    to: Node,
+    weight: Double,
+  )
+
+final case class EdgeWeightedGraphRefactor(adj: Map[Node, Seq[DirectedEdgeNode]] = Map.empty, nodeMapping: Map[Node, Int] = Map.empty)
+object EdgeWeightedGraphRefactor:
+  extension (g: EdgeWeightedGraphRefactor)
+    def addEdge(e: DirectedEdgeNode): EdgeWeightedGraphRefactor =
+      val list: Seq[DirectedEdgeNode] = g.adj.getOrElse(e.from, List.empty)
+      // TODO aca es donde se se la da el UUID
+//      val edgeToAdd: DirectedEdgeRefactor = DirectedEdgeRefactor(e.from, )
+      val adj: Map[Node, Seq[DirectedEdgeNode]] = g.adj + (e.from -> (list :+ e))
+//      val adj2: Map[Int, Seq[DirectedEdge]] = g.adj + (e.from -> (list :+ e))
+      val nodeMapping: Map[Node, Int] = ???
+      EdgeWeightedGraphRefactor(adj, nodeMapping)
+
 final case class EdgeWeightedGraph(adj: Map[Int, List[DirectedEdge]] = Map.empty)
+
 object EdgeWeightedDigraphOps:
   implicit class EdgeWeightedDigraphOps(g: EdgeWeightedGraph):
     /** Adds directed edge 'e' to EdgeWeightedDigraph by creating a full-copy adjacency list, i.e. this operation
-     * leaves current graph 'g' immutable
-     *
-     * @param e - DirectedEdge to add into the graph 'g'
-     * @return returns new graph with edge 'e' added to it
-     */
+      * leaves current graph 'g' immutable
+      *
+      * @param e - DirectedEdge to add into the graph 'g'
+      * @return returns new graph with edge 'e' added to it
+      */
     def addEdge(e: DirectedEdge): EdgeWeightedGraph =
-      val list = g.adj.getOrElse(e.from, List.empty)
-      val adj = g.adj + (e.from -> (list :+ e))
+      val list: List[DirectedEdge] = g.adj.getOrElse(e.from, List.empty)
+      val adj: Map[Int, List[DirectedEdge]] = g.adj + (e.from -> (list :+ e))
       EdgeWeightedGraph(adj)
 
 import com.estebanmarin.topl.algService.EdgeWeightedDigraphOps.*
@@ -38,4 +59,3 @@ val edgeWDiagram = EdgeWeightedGraph()
   .addEdge(DirectedEdge(3, 6, 0.52))
   .addEdge(DirectedEdge(6, 0, 0.58))
   .addEdge(DirectedEdge(6, 4, 0.93))
-

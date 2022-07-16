@@ -7,7 +7,7 @@ type Street = Int
 type TimeStamp = Int
 type TransitTime = Double
 
-final case class Node(avenue: Avenue, street: Street, nodeID: Int)
+final case class Node(avenue: Avenue, street: Street)
 object Node:
   given encoder: JsonEncoder[Node] = DeriveJsonEncoder.gen[Node]
 
